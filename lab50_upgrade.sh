@@ -1,5 +1,5 @@
 ﻿#!/bin/bash
-
+#
 echo "Добавляю репозитории LAB50 в /etc/apt/sources.list.d/lab50.list"
 
 echo "deb http://packages.lab50.net/se15/ smolensk main" | sudo tee "/etc/apt/sources.list.d/lab50.list"
