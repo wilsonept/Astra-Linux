@@ -2,7 +2,7 @@
 
 echo "Добавляю репозиторий Debian Wheezy в /etc/apt/sources.list"
 
-echo "deb http://archive.debian.org/debian/ wheezy contrib main non-free" | sudo tee -a /etc/apt/sources.list
+echo "deb http://archive.debian.org/debian/ wheezy contrib main non-free" | sudo tee -a "/etc/apt/sources.list"
 
 echo "Добавляю ключи для репозитория Debian Wheezy в /etc/apt/sources.list"
 

@@ -27,9 +27,9 @@ sudo mount /dev/sr0 || exit
 ############################################################################################################################################
 echo "Добавляю репозитории LAB50 в /etc/apt/sources.list.d/lab50.list"
 ############################################################################################################################################
-echo "deb http://packages.lab50.net/se15/ smolensk main" | sudo tee /etc/apt/sources.list.d/lab50.list
-echo "deb-src http://packages.lab50.net/se15/ smolenskmain" | sudo tee -a /etc/apt/sources.list.d/lab50.list
-echo "deb http://packages.lab50.net/security/se15 smolensk main contrib non-free" | sudo tee -a /etc/apt/sources.list.d/lab50.list
+echo "deb http://packages.lab50.net/se15/ smolensk main" | sudo tee "/etc/apt/sources.list.d/lab50.list"
+echo "deb-src http://packages.lab50.net/se15/ smolensk main" | sudo tee -a "/etc/apt/sources.list.d/lab50.list"
+echo "deb http://packages.lab50.net/security/se15 smolensk main contrib non-free" | sudo tee -a "/etc/apt/sources.list.d/lab50.list"
 echo "Добавляю ключ для репозиториев LAB50"
 wget -qO - http://packages.lab50.net/lab50.asc | sudo apt-key add -
 
@@ -39,7 +39,7 @@ sudo aptitude -y upgrade
 ############################################################################################################################################
 echo "Добавляю репозиторий Debian Wheezy в /etc/apt/sources.list"
 ############################################################################################################################################
-echo "deb http://archive.debian.org/debian/ wheezy contrib main non-free" | sudo tee -a /etc/apt/sources.list
+echo "deb http://archive.debian.org/debian/ wheezy contrib main non-free" | sudo tee -a "/etc/apt/sources.list"
 echo "Добавляю ключи для репозитория Debian Wheezy в /etc/apt/sources.list"
 #Однострочник, работает когда aptitude выдает ошибку ключей.
 sudo apt-key adv --recv-keys --keyserver keyserver.ubuntu.com `sudo aptitude update 2>&1 | grep -o '[0-9A-Z]\{16\}$'| xargs`
@@ -57,7 +57,7 @@ sudo ln -s /opt/Sublime\ Text\ 2/sublime_text /bin/sublime
 ############################################################################################################################################
 echo "Добавляю репозиторий OPERA"
 ############################################################################################################################################
-echo "deb http://deb.opera.com/opera-stable/ stable non-free" | sudo tee -a /etc/apt/sources.list
+echo "deb http://deb.opera.com/opera-stable/ stable non-free" | sudo tee -a "/etc/apt/sources.list"
 echo "Добавляю ключ для репозитория OPERA"
 wget -qO - http://deb.opera.com/archive.key | sudo apt-key add -
 sudo aptitude update
@@ -71,7 +71,7 @@ sudo aptitude install opera conky cmatrix winbind curl
 ############################################################################################################################################
 echo "Добавляю закомментированый Astra Orel Repository"
 ############################################################################################################################################
-echo "#deb [trusted=yes] http://mirror.yandex.ru/astra/stable/orel/repository/ orel main contrib non-free" | sudo tee -a /etc/apt/sources.list
+echo "#deb [trusted=yes] http://mirror.yandex.ru/astra/stable/orel/repository/ orel main contrib non-free" | sudo tee -a "/etc/apt/sources.list"
 echo "Раскоментируйте его при необходимости в /etc/apt/sources.list"
 
 ############################################################################################################################################
