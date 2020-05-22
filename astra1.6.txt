@@ -1,0 +1,77 @@
+#добавить lab50 в список репозиториев
+echo "deb http://packages.lab50.net/security/se16 smolensk main contrib non-free" | sudo tee -a "/etc/apt/sources.list.d/lab50.list"
+wget -qO - http://packages.lab50.net/lab50.asc | sudo apt-key add -
+sudo aptitude update && sudo aptitude -y install lab50-archive-keyring
+
+
+#начать обновление lab50
+sudo aptitude upgrade
+
+
+#создать образы CD-ROM
+sudo dd if=/dev/cdrom of=/opt/repository/astra.iso
+sudo mount -o loop /opt/repository/astra.iso /opt/repository/astra
+
+
+sudo dd if=/dev/cdrom of=/opt/repository/devel.iso
+sudo mount -o loop /opt/repository/devel.iso /opt/repository/devel
+
+
+#добавить в /etc/apt/sources.list
+###################################################
+#закомментить CD-ROM
+echo "deb file:///opt/repository/astra smolensk main contrib non-free" | sudo tee -a "/etc/apt/sources.list"
+echo "deb file:///opt/repository/devel smolensk main contrib non-free" | sudo tee -a "/etc/apt/sources.list"
+
+echo "deb [trusted=yes] http://mirror.yandex.ru/astra/stable/orel/repository/ orel main contrib non-free" | sudo tee -a "/etc/apt/sources.list"
+
+sudo aptitude update
+
+#добавить в /etc/fstab
+echo "/opt/repository/astra.iso /opt/repository/astra iso9660 auto, loop 0 0     0   0" | sudo tee -a "/etc/fstab"
+echo "/opt/repository/devel.iso /opt/repository/devel iso9660 auto, loop 0 0     0   0" | sudo tee -a "/etc/fstab"
+
+###################################################
+#добавить в /etc/sudoers
+ДОМЕН\\пользователь
+
+sudo os-prober
+sudo update-grub
+
+###################################################
+#установка remmina
+sudo aptitude install remmina remmina-plugin-rdp remmina-plugin-secret remmina-plugin-spice fly-admin-ad-client
+#Закомментить репозиторий Орел
+
+
+###################################################
+#добавить в /boot/grub/grub.cfg
+в строку menuentry для ОС
+--class os --unrestricted 
+
+
+
+
+###################################################
+sudo dpkg -i kesl-astra_11.1.0-3013_amd64.deb
+sudo /opt/kaspersky/kesl/bin/kesl-setup.pl
+
+
+sudo aptitude install chromium
+
+echo "Добавляю репозиторий Debian Stretch в /etc/apt/sources.list"
+
+echo "deb http://deb.debian.org/debian/ stretch main" | sudo tee -a "/etc/apt/sources.list"
+
+echo "Добавляю ключи для репозитория Debian stretch в /etc/apt/sources.list"
+
+#Однострочник, работает когда aptitude выдает ошибку ключей. Фильтрует вывод, получая только номера отсутствующих ключей,
+#и каждый из этих ключей ищет на сервере - в данном случае "keyserver.ubuntu.com"
+sudo apt-key adv --recv-keys --keyserver keyserver.ubuntu.com `sudo aptitude update 2>&1 | grep -o '[0-9A-Z]\{16\}$'| xargs`
+
+sudo aptitude update
+sudo aptitude install leafpad
+###################################################
+#закомментить Debian Repo
+
+
