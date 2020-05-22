@@ -1,77 +1,90 @@
+#!/bin/bash
+read -p "Введите имя этого компьютера: " HOSTNAME
+read -p "Введите имя домена (пример:domain.local): " DOMAIN
+read -p "Введите имя доменной учетной записи (пример:petrov.i.i): " DOMAINUSER
 #добавить lab50 в список репозиториев
 echo "deb http://packages.lab50.net/security/se16 smolensk main contrib non-free" | sudo tee -a "/etc/apt/sources.list.d/lab50.list"
 wget -qO - http://packages.lab50.net/lab50.asc | sudo apt-key add -
 sudo aptitude update && sudo aptitude -y install lab50-archive-keyring
 
-
 #начать обновление lab50
 sudo aptitude upgrade
 
-
 #создать образы CD-ROM
+read -n 1 -p "Убедитесь что диск Astra 1.6 установлен в приводе (y/[n]): " YES
+[ "$YES" = "y" ] || exit
+echo "" 1>&2
+sudo mount /dev/sr0 || exit
 sudo dd if=/dev/cdrom of=/opt/repository/astra.iso
+sudo umount /dev/sr0
 sudo mount -o loop /opt/repository/astra.iso /opt/repository/astra
 
-
+read -n 1 -p "Убедитесь что диск Astra Devel установлен в приводе (y/[n]): " YES
+[ "$YES" = "y" ] || exit
+echo "" 1>&2
+sudo mount /dev/sr0 || exit
 sudo dd if=/dev/cdrom of=/opt/repository/devel.iso
+sudo umount /dev/sr0
 sudo mount -o loop /opt/repository/devel.iso /opt/repository/devel
 
-
 #добавить в /etc/apt/sources.list
-###################################################
 #закомментить CD-ROM
+echo "#Local Repo" | sudo tee -a "/etc/apt/sources.list"
 echo "deb file:///opt/repository/astra smolensk main contrib non-free" | sudo tee -a "/etc/apt/sources.list"
 echo "deb file:///opt/repository/devel smolensk main contrib non-free" | sudo tee -a "/etc/apt/sources.list"
 
+echo "#Orel Repo" | sudo tee -a "/etc/apt/sources.list"
 echo "deb [trusted=yes] http://mirror.yandex.ru/astra/stable/orel/repository/ orel main contrib non-free" | sudo tee -a "/etc/apt/sources.list"
-
 sudo aptitude update
 
 #добавить в /etc/fstab
+echo "#Local Repo" | sudo tee -a "/etc/fstab"
 echo "/opt/repository/astra.iso /opt/repository/astra iso9660 auto, loop 0 0     0   0" | sudo tee -a "/etc/fstab"
 echo "/opt/repository/devel.iso /opt/repository/devel iso9660 auto, loop 0 0     0   0" | sudo tee -a "/etc/fstab"
 
-###################################################
+#задаем имя компьютера
+sudo hostname $HOSTNAME.$DOMAIN
 #добавить в /etc/sudoers
-ДОМЕН\\пользователь
+###################################################
+NEWSUDO="$DOMAIN\\\\$DOMAINUSER ALL=(ALL) NOPASSWD: ALL"
+sudo sed "/root/a $NEWSUDO" /etc/sudoers > /etc/sudoers
 
+#найти операционные системы и добавить их в Grub
 sudo os-prober
 sudo update-grub
 
+#добавить --unrestricted в /boot/grub/grub.cfg
+#в строку menuentry для ОС
 ###################################################
-#установка remmina
-sudo aptitude install remmina remmina-plugin-rdp remmina-plugin-secret remmina-plugin-spice fly-admin-ad-client
+PATTERN="/menuentry Windows /s/--class os /--class os --unrestricted /1"
+sudo sed -i "$PATTERN" /boot/grub/grub.cfg
+
+###################################################
+#установка remmina chromium fly-admin-ad-client
+sudo aptitude install remmina remmina-plugin-rdp remmina-plugin-secret remmina-plugin-spice fly-admin-ad-client chromium
 #Закомментить репозиторий Орел
+PATTERN="s/deb [trusted=yes] http://mirror*/#deb [trusted=yes] http://mirror.yandex.ru/astra/stable/orel/repository/ orel main contrib non-free/1"
+sudo sed -i "$PATTERN" /etc/apt/sources.list
 
-
-###################################################
-#добавить в /boot/grub/grub.cfg
-в строку menuentry для ОС
---class os --unrestricted 
-
-
-
-
-###################################################
-sudo dpkg -i kesl-astra_11.1.0-3013_amd64.deb
-sudo /opt/kaspersky/kesl/bin/kesl-setup.pl
-
-
-sudo aptitude install chromium
-
+#добавить репозиторий Debian Stretch
 echo "Добавляю репозиторий Debian Stretch в /etc/apt/sources.list"
-
-echo "deb http://deb.debian.org/debian/ stretch main" | sudo tee -a "/etc/apt/sources.list"
-
+echo "deb [trusted=yes] http://deb.debian.org/debian/ stretch main contrib non-free" | sudo tee -a "/etc/apt/sources.list"
 echo "Добавляю ключи для репозитория Debian stretch в /etc/apt/sources.list"
-
 #Однострочник, работает когда aptitude выдает ошибку ключей. Фильтрует вывод, получая только номера отсутствующих ключей,
 #и каждый из этих ключей ищет на сервере - в данном случае "keyserver.ubuntu.com"
 sudo apt-key adv --recv-keys --keyserver keyserver.ubuntu.com `sudo aptitude update 2>&1 | grep -o '[0-9A-Z]\{16\}$'| xargs`
-
 sudo aptitude update
-sudo aptitude install leafpad
+
+sudo aptitude install leafpad cmatrix conky
 ###################################################
 #закомментить Debian Repo
+PATTERN="s/deb [trusted=yes] http://deb*/#deb [trusted=yes] http://deb.debian.org/debian/ stretch main contrib non-free/1"
+sudo sed -i "$PATTERN" /etc/apt/sources.list
 
-
+#установка Kaspersky 10
+cd /home/$LOGNAME/Загрузки
+wget -q "http://products.s.kaspersky-labs.com/endpoints/keslinux10/11.1.0.3013/multilanguage-INT-11.1.0.3013/3330333339387c44454c7c31/kesl-astra_11.1.0-3013_amd64.deb"
+###################################################
+sudo dpkg -i /home/$LOGNAME/Загрузки/kesl-astra_11.1.0-3013_amd64.deb
+#настраиваем KES 10
+sudo /opt/kaspersky/kesl/bin/kesl-setup.pl
