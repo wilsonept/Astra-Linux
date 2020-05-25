@@ -61,9 +61,9 @@ sudo sed -i "$PATTERN" /boot/grub/grub.cfg
 
 ###################################################
 #установка remmina chromium fly-admin-ad-client
-sudo aptitude install remmina remmina-plugin-rdp remmina-plugin-secret remmina-plugin-spice fly-admin-ad-client chromium
+sudo aptitude install -y remmina remmina-plugin-rdp remmina-plugin-secret remmina-plugin-spice fly-admin-ad-client chromium
 #Закомментить репозиторий Орел
-PATTERN="s/deb [trusted=yes] http://mirror*/#deb [trusted=yes] http://mirror.yandex.ru/astra/stable/orel/repository/ orel main contrib non-free/1"
+PATTERN="s/deb [trusted=yes] http://mirror.*/#deb [trusted=yes] http://mirror.yandex.ru/astra/stable/orel/repository/ orel main contrib non-free/1"
 sudo sed -i "$PATTERN" /etc/apt/sources.list
 
 #добавить репозиторий Debian Stretch
@@ -72,16 +72,28 @@ echo "deb [trusted=yes] http://deb.debian.org/debian/ stretch main contrib non-f
 echo "Добавляю ключи для репозитория Debian stretch в /etc/apt/sources.list"
 #Однострочник, работает когда aptitude выдает ошибку ключей. Фильтрует вывод, получая только номера отсутствующих ключей,
 #и каждый из этих ключей ищет на сервере - в данном случае "keyserver.ubuntu.com"
+sudo aptitude update
+sudo aptitude install -y dirmngr
 sudo apt-key adv --recv-keys --keyserver keyserver.ubuntu.com `sudo aptitude update 2>&1 | grep -o '[0-9A-Z]\{16\}$'| xargs`
 sudo aptitude update
 
-sudo aptitude install leafpad cmatrix conky
+sudo aptitude install -y curl gnupg apt-transport-https leafpad cmatrix conky vim-gtk terminator
+
+curl http://packages.microsoft.com/keys/microsoft.asc | sudo apt-key add -
 ###################################################
 #закомментить Debian Repo
-PATTERN="s/deb [trusted=yes] http://deb*/#deb [trusted=yes] http://deb.debian.org/debian/ stretch main contrib non-free/1"
+PATTERN="s/deb [trusted=yes] http://deb.*/#deb [trusted=yes] http://deb.debian.org/debian/ stretch main contrib non-free/1"
 sudo sed -i "$PATTERN" /etc/apt/sources.list
 
-#установка Kaspersky 10
+#vim syntax on
+PATTERN='s/^"syntax on.*/syntax on/1' 
+sudo sed -i "$PATTERN" /etc/vim/vimrc
+
+#subleme text 3
+curl https://download.sublimetext.com/sublimehq-pub.gpg | sudo apt-key add -
+sudo aptitude update
+sudo aptitude install -y subleme-text
+
 cd /home/$LOGNAME/Загрузки
 wget -q "http://products.s.kaspersky-labs.com/endpoints/keslinux10/11.1.0.3013/multilanguage-INT-11.1.0.3013/3330333339387c44454c7c31/kesl-astra_11.1.0-3013_amd64.deb"
 ###################################################
