@@ -11,21 +11,28 @@ sudo aptitude update && sudo aptitude -y install lab50-archive-keyring
 sudo aptitude upgrade
 
 #создать образы CD-ROM
-read -n 1 -p "Убедитесь что диск Astra 1.6 установлен в приводе (y/[n]): " YES
-[ "$YES" = "y" ] || exit
+read -p "Убедитесь что диск Astra 1.6 установлен в приводе (y/[n]): " YES
+if [[ "$YES" == "y" ]]; then
 echo "" 1>&2
-sudo mount /dev/sr0 || exit
+sudo mount /dev/sr0
+sudo mkdir /opt/repository
+sudo mkdir /opt/repository/astra
 sudo dd if=/dev/cdrom of=/opt/repository/astra.iso
 sudo umount /dev/sr0
 sudo mount -o loop /opt/repository/astra.iso /opt/repository/astra
+else exit
+fi
 
 read -n 1 -p "Убедитесь что диск Astra Devel установлен в приводе (y/[n]): " YES
-[ "$YES" = "y" ] || exit
+if [[ "$YES" == "y" ]]; then
 echo "" 1>&2
-sudo mount /dev/sr0 || exit
+sudo mount /dev/sr0
+sudo mkdir /opt/repository/devel
 sudo dd if=/dev/cdrom of=/opt/repository/devel.iso
 sudo umount /dev/sr0
 sudo mount -o loop /opt/repository/devel.iso /opt/repository/devel
+else exit
+fi
 
 #добавить в /etc/apt/sources.list
 #закомментить CD-ROM
