@@ -10,7 +10,7 @@ sudo aptitude update && sudo aptitude -y install lab50-archive-keyring
 #начать обновление lab50
 sudo aptitude upgrade
 
-#создать образы CD-ROM
+создать образы CD-ROM
 read -p "Убедитесь что диск Astra 1.6 установлен в приводе (y/[n]): " YES
 if [[ "$YES" == "y" ]]; then
 echo "" 1>&2
@@ -52,29 +52,34 @@ echo "/opt/repository/devel.iso /opt/repository/devel iso9660 auto, loop 0 0    
 #задаем имя компьютера
 sudo hostname $HOSTNAME.$DOMAIN
 #добавить в /etc/sudoers
+
+###################################################
 ###################################################
 NEWSUDO="$DOMAIN\\\\$DOMAINUSER ALL=(ALL) NOPASSWD: ALL"
 sudo sed "/root/a $NEWSUDO" /etc/sudoers > /etc/sudoers
+###################################################
+###################################################
+
 
 #найти операционные системы и добавить их в Grub
 sudo os-prober
 sudo update-grub
 
 #добавить --unrestricted в /boot/grub/grub.cfg
-#в строку menuentry для ОС
-###################################################
-PATTERN="/menuentry Windows /s/--class os /--class os --unrestricted /1"
+#в строку menuentry для Windows
+PATTERN="/menuentry 'Windows /s/--class os /--class os --unrestricted /1"
 sudo sed -i "$PATTERN" /boot/grub/grub.cfg
 
-###################################################
 #установка remmina chromium fly-admin-ad-client
 sudo aptitude install -y remmina remmina-plugin-rdp remmina-plugin-secret remmina-plugin-spice fly-admin-ad-client chromium
+
 #Закомментить репозиторий Орел
-PATTERN="s/deb [trusted=yes] http://mirror.*/#deb [trusted=yes] http://mirror.yandex.ru/astra/stable/orel/repository/ orel main contrib non-free/1"
+PATTERN="/^deb \[trusted=yes\] /s/^/#/1"
 sudo sed -i "$PATTERN" /etc/apt/sources.list
 
 #добавить репозиторий Debian Stretch
 echo "Добавляю репозиторий Debian Stretch в /etc/apt/sources.list"
+echo "#Debian Repo" | sudo tee -a /etc/apt/sources.list
 echo "deb [trusted=yes] http://deb.debian.org/debian/ stretch main contrib non-free" | sudo tee -a "/etc/apt/sources.list"
 echo "Добавляю ключи для репозитория Debian stretch в /etc/apt/sources.list"
 #Однострочник, работает когда aptitude выдает ошибку ключей. Фильтрует вывод, получая только номера отсутствующих ключей,
@@ -84,26 +89,37 @@ sudo aptitude install -y dirmngr
 sudo apt-key adv --recv-keys --keyserver keyserver.ubuntu.com `sudo aptitude update 2>&1 | grep -o '[0-9A-Z]\{16\}$'| xargs`
 sudo aptitude update
 
+#Установка ништяков
 sudo aptitude install -y curl gnupg apt-transport-https leafpad cmatrix conky vim-gtk terminator
 
+#PowerShell Core 7
 curl http://packages.microsoft.com/keys/microsoft.asc | sudo apt-key add -
-###################################################
+echo "deb \[arch=amd64\] https://packages.microsoft.com/repos/microsoft-debian-stretch-prod stretch main" | sudo tee /etc/apt/sources.list.d/microsoft.list
+sudo aptitude update
+sudo aptitude install -y powershell
+
 #закомментить Debian Repo
-PATTERN="s/deb [trusted=yes] http://deb.*/#deb [trusted=yes] http://deb.debian.org/debian/ stretch main contrib non-free/1"
+PATTERN="/^deb \[trusted=yes\] /s/^/#/1"
 sudo sed -i "$PATTERN" /etc/apt/sources.list
 
 #vim syntax on
-PATTERN='s/^"syntax on.*/syntax on/1' 
+PATTERN='s/^"syntax on*/syntax on/1' 
 sudo sed -i "$PATTERN" /etc/vim/vimrc
 
 #subleme text 3
 curl https://download.sublimetext.com/sublimehq-pub.gpg | sudo apt-key add -
+echo "deb https://download.sublimetext.com/ apt/stable/" | sudo tee /etc/apt/sources.list.d/sublime-text.list
 sudo aptitude update
-sudo aptitude install -y subleme-text
+sudo aptitude install -y sublime-text
 
-cd /home/$LOGNAME/Загрузки
+#############################################
+#необходимо допилить для поддержки и русской и англ системы
+cd /home/$LOGNAME/Downloads
 wget -q "http://products.s.kaspersky-labs.com/endpoints/keslinux10/11.1.0.3013/multilanguage-INT-11.1.0.3013/3330333339387c44454c7c31/kesl-astra_11.1.0-3013_amd64.deb"
-###################################################
-sudo dpkg -i /home/$LOGNAME/Загрузки/kesl-astra_11.1.0-3013_amd64.deb
+#############################################
+sudo dpkg -i /home/$LOGNAME/Downloads/kesl-astra_11.1.0-3013_amd64.deb
+
+############################################
+#добавить базовую настройку KES
 #настраиваем KES 10
 sudo /opt/kaspersky/kesl/bin/kesl-setup.pl
