@@ -77,7 +77,7 @@ sudo aptitude install -y dirmngr
 sudo apt-key adv --recv-keys --keyserver keyserver.ubuntu.com `sudo aptitude update 2>&1 | grep -o '[0-9A-Z]\{16\}$'| xargs`
 sudo aptitude update
 
-sudo aptitude install -y curl gnupg apt-transport-https leafpad cmatrix conky vim-gtk terminator
+sudo aptitude install -y curl gnupg apt-transport-https leafpad cmatrix conky vim-gtk terminator ssh
 
 curl http://packages.microsoft.com/keys/microsoft.asc | sudo apt-key add -
 ###################################################
@@ -100,3 +100,19 @@ wget -q "http://products.s.kaspersky-labs.com/endpoints/keslinux10/11.1.0.3013/m
 sudo dpkg -i /home/$LOGNAME/Загрузки/kesl-astra_11.1.0-3013_amd64.deb
 #настраиваем KES 10
 sudo /opt/kaspersky/kesl/bin/kesl-setup.pl
+
+
+###################################################
+#install apache2
+ #sudo aptitude install apache2
+#setting up firewall
+ #sudo ufw enable
+ #sudo ufw allow in ssh
+ #sudo ufw allow in 80/tcp
+ #sudo ufw allow in 443/tcp
+ #sudo ufw allow in 10000:20000/udp
+#Jitsi meet Repo
+ #wget -qO - https://download.jitsi.org/jitsi-key.gpg.key | sudo apt-key add -
+ #echo "deb https://download.jitsi.org stable/" | sudo tee /etc/apt/sources.list.d/jitsi-stable.list
+ #sudo aptitude update && sudo aptitude -y install jitsi-meet
+ #sudo /usr/share/jitsi-meet/scripts/install-letsencrypt-cert.sh
