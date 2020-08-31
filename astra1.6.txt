@@ -34,6 +34,9 @@ sudo mount -o loop /opt/repository/devel.iso /opt/repository/devel
 else exit
 fi
 
+#вкллючение ftp для apt
+echo 'Dir::Bin::Methods::ftp "ftp";' | sudo tee -a /etc/apt/apt.conf.d/99local-ftp
+
 #добавить в /etc/apt/sources.list
 #закомментить CD-ROM
 echo "#Local Repo" | sudo tee -a "/etc/apt/sources.list"
