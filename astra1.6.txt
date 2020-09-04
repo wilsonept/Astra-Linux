@@ -127,6 +127,14 @@ sudo dpkg -i /home/$LOGNAME/Downloads/kesl-astra_11.1.0-3013_amd64.deb
 #настраиваем KES 10
 sudo /opt/kaspersky/kesl/bin/kesl-setup.pl
 
+
+
+#установка Opera
+wget -qO - https://deb.opera.com/archive.key | sudo apt-key add -
+echo 'deb https://deb.opera.com/opera-stable/ stable non-free' | sudo tee /etc/apt/sources.list.d/opera.list
+
+sudo apt-get update
+sudo apt-get install opera-stable
 ###################################################
 #install apache2
  #sudo aptitude install apache2
