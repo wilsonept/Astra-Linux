@@ -29,7 +29,10 @@ tar -xzf backup.tar.gz
 ### создаем необходимые каталоги
 ```bash
 cd /mnt
-mkdir {dev,proc,sys,run}
+mkdir {dev,proc,sys,run,media}
+mkdir /media/{floppy0,cdrom0}
+ln -s /media/floppy0 floppy # чек
+ln -s /media/cdrom0 cdrom # чек
 ```
 
 ### монтируем в эти каталоги нынешние dev,proc,sys
@@ -48,6 +51,38 @@ chroot /mnt bash
 grub-install /dev/sda
 grub-mkconfig -o /boot/grub/grub.cfg
 update-grub
+```
+
+### далее необходимо добавить правильные UUID в fstab
+(lsblk --output UUID /dev/sdaX или blkid)
+```bash
+blkid
+```
+### если UUID для swap отсутствует - форматируем раздел свапа
+```bash
+mkswap /dev/sda4
+```
+
+### добавляем строки с UUID в fstab для дальнейшего редактирования
+```bash
+lsblk --output UUID /dev/sda3 | tee -a /etc/fstab # для ext4
+lsblk --output UUID /dev/sda4 | tee -a /etc/fstab # для swap
+```
+
+### заменяем старые UUID на новые которые добавили в конец файла, после замены удаляем последние строки которые добавили предыдущими командами.
+```bash
+vi /etc/fstab
+```
+
+### далее необходимо заменить UUID в /etc/initramfs-tools/conf.d/resume
+```bash
+lsblk --output UUID /dev/sda4 | tee -a /etc/initramfs-tools/conf.d/resume
+vi /etc/initramfs-tools/conf.d/resume
+```
+
+### после того как все отредактировано перегенерим initramfs 
+```bash
+update-initramfs -u
 
 exit
 umount -a
